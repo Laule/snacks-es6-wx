@@ -22,6 +22,15 @@ Page({
     this.data.name = name;
     this._loadData();
   },
+  onReady:function()
+  {
+    // 动态设置theme BarTitle
+    wx.setNavigationBarTitle({
+      title: this.data.name,
+    })
+
+  },
+
   _loadData:function()
   {
     theme.getProductData(this.data.id,(data)=>{

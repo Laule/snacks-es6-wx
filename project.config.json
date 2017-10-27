@@ -13,7 +13,22 @@
 	"condition": {
 		"weapp": {
 			"current": -1,
-			"list": []
+			"list": [
+				{
+					"id": 0,
+					"name": "product",
+					"pathName": "pages/product/product",
+					"query": "id=11",
+					"scene": "1001"
+				},
+				{
+					"id": -1,
+					"name": "category",
+					"pathName": "pages/category/category",
+					"query": "",
+					"scene": "1001"
+				}
+			]
 		},
 		"search": {
 			"current": -1,
