@@ -7,17 +7,18 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+    loadingHidden: false
   },
   onLoad: function () {
     this._loadData();
   },
   _loadData: function () {
+    var that = this;
     var id = 1;
     // (res)是callBack 的匿名方法使用
     home.getBannerData(id, (res) => {
       console.log(res);
-      this.setData({
+      that.setData({
         'bannerArr': res
       });
     });
@@ -25,7 +26,7 @@ Page({
     // 精選主題
     home.getThemeData((res) => {
       console.log(res);
-      this.setData({
+      that.setData({
         'themeArr': res
       });
     });
@@ -33,13 +34,14 @@ Page({
     // 最新單品
     home.getProductsData((res) => {
       console.log(res);
-      this.setData({
-        'productsArr': res
+      that.setData({
+        'productsArr': res,
+        loadingHidden: true
       });
     });
 
   },
-
+  // 商品详情
   onProductsItemTap: function (event) {
     var id = home.getDataSet(event, 'id');
     console.log(id);
@@ -47,6 +49,7 @@ Page({
       url: '../product/product?id=' + id,
     })
   },
+  // 主题列表
   onThemeItemTap: function (event) {
     var id = home.getDataSet(event, 'id'),
       name = home.getDataSet(event, 'name');
@@ -57,5 +60,18 @@ Page({
   },
   callBack: function (res) {
     console.log(res);
+  },
+  /*下拉刷新页面*/
+  onPullDownRefresh: function () {
+    this._loadData(() => {
+      wx.stopPullDownRefresh()
+    });
+  },
+  //分享效果
+  onShareAppMessage: function () {
+    return {
+      title: '零食商贩 Pretty Vendor',
+      path: 'pages/home/home'
+    }
   }
 })
