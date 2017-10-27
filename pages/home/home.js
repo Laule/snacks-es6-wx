@@ -1,66 +1,61 @@
 // pages/home/home.js
+import { Home } from 'home-model.js';
+var home = new Home();
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-  
+
+  },
+  onLoad: function () {
+    this._loadData();
+  },
+  _loadData: function () {
+    var id = 1;
+    // (res)是callBack 的匿名方法使用
+    home.getBannerData(id, (res) => {
+      console.log(res);
+      this.setData({
+        'bannerArr': res
+      });
+    });
+
+    // 精選主題
+    home.getThemeData((res) => {
+      console.log(res);
+      this.setData({
+        'themeArr': res
+      });
+    });
+
+    // 最新單品
+    home.getProductsData((res) => {
+      console.log(res);
+      this.setData({
+        'productsArr': res
+      });
+    });
+
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-  
+  onProductsItemTap: function (event) {
+    var id = home.getDataSet(event, 'id');
+    console.log(id);
+    wx.navigateTo({
+      url: '../product/product?id=' + id,
+    })
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-  
+  onThemeItemTap: function (event) {
+    var id = home.getDataSet(event, 'id'),
+      name = home.getDataSet(event, 'name');
+    console.log(id, name);
+    wx.navigateTo({
+      url: '../theme/theme?id=' + id + "&name=" + name,
+    })
   },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-  
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-  
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-  
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-  
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-  
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-  
+  callBack: function (res) {
+    console.log(res);
   }
 })
