@@ -8,86 +8,99 @@ var order = new Order();
 var address = new Address();
 
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    id: -1
+    fromCartFlag: true,
+    addressInfo: null
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
+  /*
+  * 订单数据来源包括两个：
+  * 1.购物车下单
+  * 2.旧的订单
+  * */
   onLoad: function (options) {
-    // productArr用户订单包含的信息
-    var productsArr;
-    this.data.account = options.account;
-    productsArr = cart.getCartDataFromLocal(true);
-    this.setData({
-      productsArr: productsArr,
-      account: options.account,
-      orderStatus: 0
+    var from = options.from;
+    if (from == 'cart') {
+      this._fromCart(options.account);
+    }
+    else {
+      var id = options.id;
+      this._fromOrder(id);
+    }
+  },
+  onShow: function () {
+    if (this.data.id) {
+      this._fromOrder(this.data.id);
+    }
 
+  },
+  _fromCart: function (account) {
+    this.data.account = account;
+    this.setData({
+      productsArr: cart.getCartDataFromLocal(true),
+      account: account,
+      orderStatus: 0
     });
-    /* 显示收货地址 */
+    /*显示收获地址*/
     address.getAddress((res) => {
       this._bindAddressInfo(res);
     });
   },
+  _fromOrder: function (id) {
+    if (id) {
+      var that = this;
+      //下单后，支付成功或者失败后，点左上角返回时能够更新订单状态 所以放在onshow中
+      // var id = this.data.id;
+      order.getOrderInfoById(id, (data) => {
+        that.setData({
+          orderStatus: data.status,
+          productsArr: data.snap_items,
+          account: data.total_price,
+          basicInfo: {
+            orderTime: data.create_time,
+            orderNo: data.order_no
+          },
+        });
+
+        // 快照地址
+        var addressInfo = data.snap_address;
+        addressInfo.totalDetail = address.setAddressInfo(addressInfo);
+        that._bindAddressInfo(addressInfo);
+      });
+    }
+  },
 
 
-  editAddress: function (event) {
+  /*修改或者添加地址信息*/
+  editAddress: function () {
     var that = this;
     wx.chooseAddress({
       success: function (res) {
-        console.log(res);
-        var addressInfo =
-          {
-            name: res.userName,
-            mobile: res.telNumber,
-            totalDetail: address.setAddressInfo(res)
-          }
-        /* 在这个回调函数不能用this, 因为这个this已经不是this._bindAddressInfo,所以会找不到这个方法 */
+        var addressInfo = {
+          name: res.userName,
+          mobile: res.telNumber,
+          totalDetail: address.setAddressInfo(res)
+        };
         that._bindAddressInfo(addressInfo);
+
+        //保存地址
         address.submitAddress(res, (flag) => {
           if (!flag) {
-            that.showTips('操作提示', '地址更新失败！');
+            that.showTips('操作提示', '地址信息更新失败！');
           }
         });
       }
     })
   },
 
-  /*
-       * 提示窗口
-       * params:
-       * title - {string}标题
-       * content - {string}内容
-       * flag - {bool}是否跳转到 "我的页面"
-       */
-  showTips: function (title, content, flag) {
-    wx.showModal({
-      title: title,
-      content: content,
-      showCancel: false,
-      success: function (res) {
-        if (flag) {
-          wx.switchTab({
-            url: '/pages/my/my'
-          });
-        }
-      }
-    });
-  },
-
-  // 绑定地址信息
+  /*绑定地址信息*/
   _bindAddressInfo: function (addressInfo) {
     this.setData({
       addressInfo: addressInfo
     });
   },
-  // 下单和付款
+
+  /*下单和付款*/
   pay: function () {
     if (!this.data.addressInfo) {
       this.showTips('下单提示', '请填写您的收货地址');
@@ -98,7 +111,6 @@ Page({
     } else {
       this._oneMoresTimePay();
     }
-
   },
 
   /*第一次支付*/
@@ -121,7 +133,7 @@ Page({
         //更新订单状态
         var id = data.order_id;
         that.data.id = id;
-        // that.data.fromCartFlag = false;
+        that.data.fromCartFlag = false;
 
         //开始支付
         that._execPay(id);
@@ -130,11 +142,35 @@ Page({
       }
     });
   },
+
+
   /*
-         *下单失败
-         * params:
-         * data - {obj} 订单结果信息
-         * */
+  * 提示窗口
+  * params:
+  * title - {string}标题
+  * content - {string}内容
+  * flag - {bool}是否跳转到 "我的页面"
+  */
+  showTips: function (title, content, flag) {
+    wx.showModal({
+      title: title,
+      content: content,
+      showCancel: false,
+      success: function (res) {
+        if (flag) {
+          wx.switchTab({
+            url: '/pages/my/my'
+          });
+        }
+      }
+    });
+  },
+
+  /*
+  *下单失败
+  * params:
+  * data - {obj} 订单结果信息
+  * */
   _orderFail: function (data) {
     var nameArr = [],
       name = '',
@@ -173,10 +209,10 @@ Page({
   },
 
   /*
-      *开始支付
-      * params:
-      * id - {int}订单id
-      */
+  *开始支付
+  * params:
+  * id - {int}订单id
+  */
   _execPay: function (id) {
     if (!order.onPay) {
       this.showTips('支付提示', '本产品仅用于演示，支付系统已屏蔽', true);//屏蔽支付，提示
@@ -204,52 +240,7 @@ Page({
     }
     cart.delete(ids);
   },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
 
-  },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  }
-})
+}
+)

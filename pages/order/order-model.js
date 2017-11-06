@@ -57,14 +57,43 @@ class Order extends Base {
     };
     this.request(allParams);
   }
+  /*获得所有订单,pageIndex 从1开始*/
+  getOrders(pageIndex, callback) {
+    var allParams = {
+      url: 'order/by_user',
+      data: { page: pageIndex },
+      type: 'post',
+      sCallback: function (data) {
+        callback && callback(data);  //1 未支付  2，已支付  3，已发货，4已支付，但库存不足
+      }
+    };
+    this.request(allParams);
+  }
 
+  /*获得订单的具体内容*/
+  getOrderInfoById(id, callback) {
+    var that = this;
+    var allParams = {
+      url: 'order/' + id,
+      sCallback: function (data) {
+        callback && callback(data);
+      },
+      eCallback: function () {
 
+      }
+    };
+    this.request(allParams);
+  }
 
 
   /*本地缓存 保存／更新*/
   execSetStorageSync(data) {
     wx.setStorageSync(this._storageKeyName, data);
   };
-
+  /*是否有新的订单*/
+  hasNewOrder() {
+    var flag = wx.getStorageSync(this._storageKeyName);
+    return flag == true;
+  }
 }
 export {Order};
