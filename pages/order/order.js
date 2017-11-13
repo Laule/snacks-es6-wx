@@ -215,7 +215,7 @@ Page({
   */
   _execPay: function (id) {
     if (!order.onPay) {
-      this.showTips('支付提示', '本产品仅用于演示，支付系统已屏蔽', true);//屏蔽支付，提示
+      this.showTips('支付提示', '本产品暂未开通微信支付。', true);//屏蔽支付，提示
       this.deleteProducts(); //将已经下单的商品从购物车删除
       return;
     }

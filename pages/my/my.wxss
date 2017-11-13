@@ -1,6 +1,5 @@
 /* pages/my/my.wxss */
 @import "../tpls/base.wxss";
-
 .my-container{
     background-color:#EDEDED;
 }

@@ -61,6 +61,11 @@
 .title-box{
     display: flex;
     justify-content:space-between;
+    overflow : hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 .bottom-box{
     font-size: 24rpx;

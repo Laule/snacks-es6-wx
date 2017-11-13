@@ -119,7 +119,7 @@ onPullDownRefresh: function () {
 //分享效果
 onShareAppMessage: function () {
   return {
-    title: '零食商贩 Pretty Vendor',
+    title: '赶圩网 一应俱全',
     path: 'pages/product/product?id=' + this.data.id
   }
 }

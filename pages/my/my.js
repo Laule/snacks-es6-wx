@@ -121,7 +121,7 @@ Page({
     if (order.onPay) {
       this._execPay(id, index);
     } else {
-      this.showTips('支付提示', '本产品仅用于演示，支付系统已屏蔽');
+      this.showTips('支付提示', '本产品暂未开通微信支付。');
     }
   },
 
